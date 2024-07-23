@@ -11,6 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DetoxButler"
-        tools:targetApi="31" />
+        tools:targetApi="31">
+        <service
+            android:name=".DetoxButlerService"
+            android:enabled="true"
+            android:exported="true" />
+    </application>
 
 </manifest>

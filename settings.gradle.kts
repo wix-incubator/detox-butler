@@ -21,4 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Detox Butler"
 include(":app")
- 
+include(":lib")
+include(":demo")
+include(":core")
