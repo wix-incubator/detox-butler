@@ -1,5 +1,5 @@
 name: detox-butler-actions
-on: [ pull_request ]
+on: [ push ]
 jobs:
     build-and-test:
         name: build and test
