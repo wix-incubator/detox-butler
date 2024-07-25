@@ -2,18 +2,17 @@ package com.wix.detoxbutler
 
 import android.app.Service
 import android.content.Intent
-import android.os.Binder
 import android.os.IBinder
+import com.wix.detoxbutler.api.DetoxButlerApi
 import com.wix.detoxbutler.core.NoDialogActivityController
 import timber.log.Timber
 
 class DetoxButlerService : Service() {
 
-    private val binder = LocalBinder()
-
-    inner class LocalBinder : Binder() {
-        // Return this instance of LocalService so clients can call public methods.
-        fun getService(): DetoxButlerService = this@DetoxButlerService
+    private val binder = object : DetoxButlerApi.Stub() {
+        override fun isDetoxButlerServiceEnabled(): Boolean {
+            return true
+        }
     }
 
     override fun onBind(intent: Intent): IBinder {

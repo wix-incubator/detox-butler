@@ -44,10 +44,7 @@ object DetoxButler {
             intent, serviceConnection, Context.BIND_AUTO_CREATE
         )
         try {
-            if (!serviceStarted.await(
-                    15, TimeUnit.SECONDS
-                )
-            ) {
+            if (!serviceStarted.await(15, TimeUnit.SECONDS)) {
                 Timber.e("Timeout while trying to start DetoxButlerService. Did you install the DetoxButler app?")
             }
         } catch (e: InterruptedException) {
