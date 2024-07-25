@@ -15,19 +15,20 @@ private const val DETOX_BUTLER_APP_PACKAGE = "com.wix.detoxbutler"
 private const val DETOX_BUTLER_SERVICE_NAME = "com.wix.detoxbutler.DetoxButlerService"
 
 object DetoxButler {
-
     private val componentName = ComponentName(
         DETOX_BUTLER_APP_PACKAGE, DETOX_BUTLER_SERVICE_NAME
     )
 
     private var serviceStarted = CountDownLatch(1)
 
+    private var detoxServiceApi: DetoxButlerApi? = null
+
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             Timber.d("Service connected")
             serviceStarted.countDown()
-            val api = DetoxButlerApi.Stub.asInterface(service)
-            Timber.d("DetoxButlerService enabled: ${api.isDetoxButlerServiceEnabled()}")
+            detoxServiceApi = DetoxButlerApi.Stub.asInterface(service)
+            Timber.d("DetoxButlerService enabled: ${detoxServiceApi?.isDetoxButlerServiceEnabled()}")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
@@ -61,5 +62,24 @@ object DetoxButler {
 
         context.unbindService(serviceConnection)
         serviceStarted = CountDownLatch(1)
+    }
+
+    fun isDetoxButlerServiceEnabled(): Boolean {
+        return detoxServiceApi?.isDetoxButlerServiceEnabled() ?: false
+    }
+
+    @Throws(IllegalStateException::class)
+    fun tryToWaitForDetoxButlerServiceToBeEnabled(): Boolean {
+        try {
+            if (serviceStarted.await(15, TimeUnit.SECONDS)) {
+                return isDetoxButlerServiceEnabled()
+            }
+
+            Timber.e("Timeout while trying to get service status. Did you install the DetoxButler app?")
+        } catch (e: InterruptedException) {
+            throw IllegalStateException("Interrupted while trying to get service status", e)
+        }
+
+        return false
     }
 }
