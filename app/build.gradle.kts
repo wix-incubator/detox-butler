@@ -54,6 +54,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig = getByName("release").signingConfig
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
