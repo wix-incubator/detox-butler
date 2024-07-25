@@ -14,6 +14,9 @@ import java.util.concurrent.TimeUnit
 private const val DETOX_BUTLER_APP_PACKAGE = "com.wix.detoxbutler"
 private const val DETOX_BUTLER_SERVICE_NAME = "com.wix.detoxbutler.DetoxButlerService"
 
+private const val HELP_LOG_MESSAGE = "Did you install the DetoxButler app? Did you add <queries> to your AndroidManifest.xml?"
+
+@Suppress("unused")
 object DetoxButler {
     private val componentName = ComponentName(
         DETOX_BUTLER_APP_PACKAGE, DETOX_BUTLER_SERVICE_NAME
@@ -36,23 +39,31 @@ object DetoxButler {
         }
     }
 
+    @JvmStatic
     fun setup(context: Context) {
         Timber.d("DetoxButler Setup")
         val intent = Intent()
         intent.setComponent(componentName)
 
-        context.bindService(
+        val bindResult = context.bindService(
             intent, serviceConnection, Context.BIND_AUTO_CREATE
         )
+
+        if (!bindResult) {
+            Timber.e("Failed to bind to DetoxButlerService. $HELP_LOG_MESSAGE")
+            return
+        }
+
         try {
             if (!serviceStarted.await(15, TimeUnit.SECONDS)) {
-                Timber.e("Timeout while trying to start DetoxButlerService. Did you install the DetoxButler app?")
+                Timber.e("Timeout while trying to start DetoxButlerService. $HELP_LOG_MESSAGE")
             }
         } catch (e: InterruptedException) {
             throw IllegalStateException("Interrupted while trying to start ButlerService", e)
         }
     }
 
+    @JvmStatic
     fun teardown(context: Context) {
         Timber.d("DetoxButler teardown")
         val intent = Intent()
@@ -64,14 +75,28 @@ object DetoxButler {
         serviceStarted = CountDownLatch(1)
     }
 
+    @JvmStatic
+    fun isDetoxButlerServiceInstalled(context: Context): Boolean {
+        val pm = context.packageManager
+        return try {
+            pm.getPackageInfo(DETOX_BUTLER_APP_PACKAGE, 0)
+            true
+        } catch (e: Exception) {
+            Timber.e("DetoxButler app is not installed. $HELP_LOG_MESSAGE")
+            false
+        }
+    }
+
+    @JvmStatic
     fun isDetoxButlerServiceEnabled(): Boolean {
         return detoxServiceApi?.isDetoxButlerServiceEnabled() ?: false
     }
 
+    @JvmStatic
     @Throws(IllegalStateException::class)
-    fun tryToWaitForDetoxButlerServiceToBeEnabled(): Boolean {
+    fun tryToWaitForDetoxButlerServiceToBeEnabled(timeoutSeconds: Long = 15): Boolean {
         try {
-            if (serviceStarted.await(15, TimeUnit.SECONDS)) {
+            if (serviceStarted.await(timeoutSeconds, TimeUnit.SECONDS)) {
                 return isDetoxButlerServiceEnabled()
             }
 
