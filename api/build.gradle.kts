@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.androidgitversion)
+    id("maven-publish")
 }
 
 android {
@@ -33,8 +35,23 @@ android {
     }
 }
 
-dependencies {
+afterEvaluate {
+    publishing {
+        publications {
+            register<MavenPublication>("debug") {
+                groupId = "com.wix.detoxbutler"
+                artifactId = "api"
+                version = androidGitVersion.name()
 
+                afterEvaluate {
+                    from(components["debug"])
+                }
+            }
+        }
+    }
+}
+
+dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
