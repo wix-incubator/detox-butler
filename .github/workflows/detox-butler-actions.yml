@@ -19,4 +19,4 @@ jobs:
                   distribution: 'zulu'
                   cache: gradle
             - name: Build and lint
-              run: ./gradlew lint assembleDebug
+              run: ./gradlew lint test

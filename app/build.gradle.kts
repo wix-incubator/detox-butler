@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.androidgitversion)
 }
 
 android {
@@ -11,22 +14,42 @@ android {
         applicationId = "com.wix.detoxbutler"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = androidGitVersion.code()
+        versionName = androidGitVersion.name()
+
+        archivesName = "detoxbutler-$versionName"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        signingConfig=signingConfigs.getByName("debug")
-
     }
 
     signingConfigs {
-        getByName("debug") {
-            storeFile=file("keystore/platform.keystore")
-            keyAlias="platform"
+        create("aosp") {
+            storeFile = file("keystore/platform.keystore")
+            keyAlias = "platform"
 
-            storePassword="android"
-            keyPassword="android"
+            storePassword = "android"
+            keyPassword = "android"
+        }
+
+        create("genymotion") {
+            storeFile = file("keystore/genymotion_release.keystore")
+            keyAlias = "platform"
+
+            storePassword = "genymotion"
+            keyPassword = "genymotion"
+        }
+    }
+
+    flavorDimensions += "platform"
+    productFlavors {
+        create("aosp") {
+            dimension = "platform"
+            signingConfig = signingConfigs.getByName("aosp")
+        }
+
+        create("genymotion") {
+            dimension = "platform"
+            signingConfig = signingConfigs.getByName("genymotion")
         }
     }
 
