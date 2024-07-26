@@ -15,7 +15,8 @@ jobs:
               uses: actions/checkout@v4
               with:
                 fetch-depth: 1
-                fetch-tags: true
+            - name: Fetch tags
+              run: git fetch --tags origin
             - run: echo "Setting up JDK"
             - name: set up JDK 17
               uses: actions/setup-java@v4
@@ -35,7 +36,8 @@ jobs:
           uses: actions/checkout@v4
           with:
             fetch-depth: 1
-            fetch-tags: true
+        - name: Fetch tags
+          run: git fetch --tags origin
         - run: echo "Setting up JDK"
         - name: set up JDK 17
           uses: actions/setup-java@v4
