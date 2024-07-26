@@ -23,7 +23,7 @@ work on all Android versions is a bit of a challenge.
 2. Add the following dependency to your app/build.gradle
 ```groovy
     dependencies {
-        androidTestImplementation 'com.github.wix-incubator:detox-butler:core:Tag'
+        androidTestImplementation 'com.github.wix-incubator:detox-butler:detoxbutler:Tag'
         androidTestUtil 'com.github.wix-incubator:detox-butler:app-aosp:Tag' 
     }
 ```
