@@ -37,13 +37,13 @@ android {
 afterEvaluate {
     publishing {
         publications {
-            register<MavenPublication>("debug") {
+            register<MavenPublication>("release") {
                 groupId = "com.wix.detoxbutler"
                 artifactId = "detoxbutler"
                 version = androidGitVersion.name()
 
                 afterEvaluate {
-                    from(components["debug"])
+                    from(components["release"])
                 }
             }
         }

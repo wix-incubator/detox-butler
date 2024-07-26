@@ -96,6 +96,10 @@ afterEvaluate {
     }
 }
 
+tasks.withType<PublishToMavenLocal>().configureEach {
+    dependsOn("assembleRelease")
+}
+
 dependencies {
     implementation(project(":core"))
     implementation(project(":api"))
