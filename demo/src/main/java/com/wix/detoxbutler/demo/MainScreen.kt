@@ -23,13 +23,17 @@ interface MainScreenCallback {
     fun onGenerateAnrClicked()
 
     fun refreshServiceStatus()
+
+    fun onCrashClicked()
 }
 
 @Composable
 fun MainScreen(callback: MainScreenCallback, serviceEnabled: Boolean) {
     // A surface container using the 'background' color from the theme
     Surface(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         color = MaterialTheme.colorScheme.background
     ) {
         MainScreenContent(callback, serviceEnabled)
@@ -52,6 +56,9 @@ private fun MainScreenContent(callback: MainScreenCallback, serviceEnabled: Bool
             Button(onClick = callback::refreshServiceStatus) {
                 Text(text = "Refresh Enabled Status")
             }
+            Button(onClick = callback::onCrashClicked) {
+                Text(text = "Crash")
+            }
         }
 
         Column {
@@ -68,6 +75,7 @@ private class MainScreenPreviewCallback : MainScreenCallback {
 
     override fun onGenerateAnrClicked() {}
     override fun refreshServiceStatus() {}
+    override fun onCrashClicked() {}
 }
 
 @Composable
