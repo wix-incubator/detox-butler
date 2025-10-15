@@ -2,6 +2,10 @@ package com.wix.detoxbutler.core
 
 import android.app.IActivityController
 import android.content.Intent
+import android.os.IBinder
+import android.os.IInterface
+import android.os.Parcel
+import android.util.Log
 import timber.log.Timber
 
 /**
@@ -72,37 +76,28 @@ class NoDialogActivityController : IActivityController.Stub() {
 
         private fun setActivityController(activityController: IActivityController?) {
             try {
-                Timber.d("Setting custom IActivityController")
                 val amClass = Class.forName("android.app.ActivityManager")
                 val getService = amClass.getMethod("getService")
-                val activityManager = getService.invoke(null)
+                val am = getService.invoke(null) as IInterface
+                val binder = am.asBinder()
 
-                if (activityManager == null) {
-                    Timber.e("Failed to get the ActivityManager service")
-                    return
-                }
+                val data = Parcel.obtain()
+                val reply = Parcel.obtain()
+                data.writeInterfaceToken("android.app.IActivityManager")
+                data.writeStrongBinder(activityController?.asBinder())
+                data.writeInt(0) // imAMonkey = true
 
-                doSetActivityController(activityManager, activityController)
-                Timber.d("Custom IActivityController set successfully")
-            } catch (e: Throwable) {
-                Timber.e(e, "Failed to install custom IActivityController: " + e.message)
+                // TRANSACTION_setActivityController: check below
+                binder.transact(51, data, reply, 0)
+
+                reply.recycle()
+                data.recycle()
+                Timber.i("Binder controller installed successfully")
+            } catch (t: Throwable) {
+                Timber.i(t, "Binder install failed")
             }
         }
 
-        /**
-         * Attempts to set the activity controller
-         *
-         * @throws Throwable if the activity controller cannot be set
-         */
-        @Throws(Throwable::class)
-        private fun doSetActivityController(activityManager: Any, activityController: IActivityController?) {
-            val setMethod = activityManager.javaClass.getMethod(
-                "setActivityController",
-                IActivityController::class.java,
-                Boolean::class.javaPrimitiveType
-            )
-            val params = arrayOf(activityController, false)
-            setMethod.invoke(activityManager, *params)
-        }
+
     }
 }
